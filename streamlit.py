@@ -2,6 +2,7 @@ import streamlit as st
 from ultralytics import YOLO
 from PIL import Image
 import numpy as np
+import cv2
 import io
 
 # ==========================
@@ -9,7 +10,7 @@ import io
 # ==========================
 st.set_page_config(page_title="Construction Safety Detection", layout="wide")
 
-MODEL_PATH = r"E:\Purwadhika\Coding\Capstone Project 4\weights\best.pt"
+MODEL_PATH = r"weights\best.pt"
 model = YOLO(MODEL_PATH)
 
 # ==========================
@@ -18,7 +19,7 @@ model = YOLO(MODEL_PATH)
 st.markdown(
     """
     <h1 style='text-align:center; color:white;'>🦺 Construction Safety Object Detection</h1>
-    <p style='text-align:center; color:#cccccc;'>Upload gambar pekerja konstruksi untuk mendeteksi APD (helmet, vest, no-vest).</p>
+    <p style='text-align:center; color:#cccccc;'>Upload gambar pekerja konstruksi untuk mendeteksi APD (helmet, vest, no-vest, no-helmet).</p>
     <br>
     """,
     unsafe_allow_html=True,
@@ -46,20 +47,20 @@ if uploaded_file is not None:
     # 1. READ IMAGE
     # --------------------
     img = Image.open(uploaded_file).convert("RGB")
-    img_np = np.array(img)
+    img_cv2 = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
 
     st.image(img, caption="Original Image", use_column_width=True)
 
     # --------------------
     # 2. PREDICT
     # --------------------
-    results = model.predict(img_np, conf=conf_thres)
+    results = model.predict(img_cv2, conf=conf_thres)
 
     # --------------------
     # 3. BETTER PLOT (anti-crop)
     # --------------------
     plot = results[0].plot()  # numpy array (BGR)
-    plot_rgb = Image.fromarray(plot[..., ::-1])  # BGR → RGB (tanpa cv2)
+    plot_rgb = cv2.cvtColor(plot, cv2.COLOR_BGR2RGB)
 
     st.subheader("🔍 Detection Result")
     st.image(plot_rgb, use_column_width=True)
