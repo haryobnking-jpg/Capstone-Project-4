@@ -10,7 +10,7 @@ import io
 # ==========================
 st.set_page_config(page_title="Construction Safety Detection", layout="wide")
 
-MODEL_PATH = r"weights\best.pt"
+MODEL_PATH = r"weights/best.pt"
 model = YOLO(MODEL_PATH)
 
 # ==========================
