@@ -2,7 +2,6 @@ import streamlit as st
 from ultralytics import YOLO
 from PIL import Image
 import numpy as np
-import cv2
 import io
 
 # ==========================
@@ -46,21 +45,21 @@ if uploaded_file is not None:
     # --------------------
     # 1. READ IMAGE
     # --------------------
-    img = Image.open(uploaded_file)
-    img_cv2 = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+    img = Image.open(uploaded_file).convert("RGB")
+    img_np = np.array(img)
 
     st.image(img, caption="Original Image", use_column_width=True)
 
     # --------------------
     # 2. PREDICT
     # --------------------
-    results = model.predict(img_cv2, conf=conf_thres)
+    results = model.predict(img_np, conf=conf_thres)
 
     # --------------------
     # 3. BETTER PLOT (anti-crop)
     # --------------------
     plot = results[0].plot()  # numpy array (BGR)
-    plot_rgb = cv2.cvtColor(plot, cv2.COLOR_BGR2RGB)
+    plot_rgb = Image.fromarray(plot[..., ::-1])  # BGR → RGB (tanpa cv2)
 
     st.subheader("🔍 Detection Result")
     st.image(plot_rgb, use_column_width=True)
